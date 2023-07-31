@@ -22,7 +22,7 @@ def predict(df):
     x_text = df['テキスト'].tolist()
 
     # 学習済みモデルの読み込み
-    new_model = AlbertForSequenceClassification.from_pretrained('./model')
+    new_model = AlbertForSequenceClassification.from_pretrained('./src/model')
 
     # 結果を格納するためのリスト
     results = []
