@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ファイルアップロード</title>
+  </head>
+  <body>
+    <h1>ファイルアップロード</h1>
+    <form
+      method="POST"
+      action="{{ url_for('upload') }}"
+      enctype="multipart/form-data"
+    >
+      <input type="file" name="file" accept=".csv" />
+      <button type="submit">Upload</button>
+    </form>
+  </body>
+</html>

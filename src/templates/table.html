@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>FILE CSV</title>
+  </head>
+  <body>
+    <h1>CSVデータ</h1>
+    <form action="/download" method="POST">
+      <input type="hidden" name="csv_output" value="{{ csv_output|safe }}">
+      <button type="submit">Download CSV</button>
+  </form>
+  </body>
+</html>
