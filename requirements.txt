@@ -5,3 +5,4 @@ pillow==9.0.1
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==1.12.1+cpu
 pytorch-lightning==2.0.4
+gunicorn==20.1.0
