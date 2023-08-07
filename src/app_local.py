@@ -8,6 +8,7 @@ import process_data
 
 import torch
 import torch.nn.functional as F
+import torch.quantization
 import transformers
 from transformers import AlbertTokenizer
 from transformers import AlbertForSequenceClassification
@@ -24,19 +25,26 @@ def predict(df):
     # 学習済みモデルの読み込み
     new_model = AlbertForSequenceClassification.from_pretrained('./src/model')
 
-    # 結果を格納するためのリスト
-    results = []
+    # モデルを量子化
+    quantized_model = torch.quantization.quantize_dynamic(
+        new_model,  # 学習済みモデル
+        {torch.nn.Linear, torch.nn.Conv2d},  # 量子化するモジュールのリスト
+        dtype=torch.qint8  # 量子化データ型
+    )
 
-    max_length = 512
+    # 結果を格納するためのリスト
+    quantized_results = []
+
+    max_length = 266
     with torch.no_grad():
 
     # 各テキストに対してループで推論を行う
         for text in x_text:
-            inputs = albert_tokenizer(text, return_tensors="pt", max_length=max_length, padding='max_length', truncation=True)
-            output = new_model(**inputs)
+            inputs = albert_tokenizer(text, return_tensors="pt", max_length=max_length, padding='do_not_pad', truncation=True)
+            quantized_output = quantized_model(**inputs)
 
             # ソフトマックス関数を適用して確率分布に変換
-            probs = F.softmax(output.logits, dim=1)
+            probs = F.softmax(quantized_output.logits.float(), dim=1)
 
             # 最大の確率に対応するラベルを取得
             predicted_labels = torch.argmax(probs, dim=1)
@@ -50,14 +58,14 @@ def predict(df):
             # 結果を辞書にまとめてリストに追加
             result_dict = {
                 "text": text,
-                "logits": output.logits,
+                "logits": quantized_output.logits,
                 "predicted_labels": predicted_labels,
                 "prob_label_1": prob_label_1
             }
-            results.append(result_dict)
+            quantized_results.append(result_dict)
     
-    predicted_labels_list = [item['predicted_labels'].item() for item in results]
-    prob_label_1_list = [item['prob_label_1'].item() for item in results]
+    predicted_labels_list = [item['predicted_labels'].item() for item in quantized_results]
+    prob_label_1_list = [item['prob_label_1'].item() for item in quantized_results]
 
     # 新しい列のデータ
     new_columns = {
