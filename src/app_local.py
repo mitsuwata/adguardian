@@ -41,7 +41,9 @@ def predict(df):
     # 各テキストに対してループで推論を行う
         for text in x_text:
             inputs = albert_tokenizer(text, return_tensors="pt", max_length=max_length, padding='do_not_pad', truncation=True)
+            print('符号化が終わった')
             quantized_output = quantized_model(**inputs)
+            print('ベクトル化が終わった')
 
             # ソフトマックス関数を適用して確率分布に変換
             probs = F.softmax(quantized_output.logits.float(), dim=1)
@@ -63,6 +65,7 @@ def predict(df):
                 "prob_label_1": prob_label_1
             }
             quantized_results.append(result_dict)
+            print('推論が終わった')
     
     predicted_labels_list = [item['predicted_labels'].item() for item in quantized_results]
     prob_label_1_list = [item['prob_label_1'].item() for item in quantized_results]
@@ -102,7 +105,7 @@ def upload():
 
         # 列を選択してDataFrameを作成
         selected_df = process_data.select_columns(df)
-        #print(selected_df)
+        print('データができた')
 
         df_complete = predict(selected_df)
 
