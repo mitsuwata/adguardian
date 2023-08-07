@@ -104,7 +104,7 @@ def upload():
         df = pd.read_csv(io.StringIO(csv_file))
 
         # 列を選択してDataFrameを作成
-        selected_df = process_data.select_columns(df)
+        selected_df = process_data.select_columns_fast(df)
         print('データができた')
 
         df_complete = predict(selected_df)
