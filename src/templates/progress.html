@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ファイルアップロード</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+      var socket = io.connect('http://' + document.domain + ':' + location.port);
+      socket.on('update_letters', function(data) {
+          var lettersDiv = document.getElementById('letters');
+          lettersDiv.innerHTML += data.letters + '<br>';
+      });
+      function startGenerating() {
+        socket.emit('start_generating');  // Send a signal to start generating letters
+      }
+      // generation_complete イベントを待ち受ける
+      socket.on('generation_complete', function() {
+        // ページをリダイレクトして table.html を表示
+        window.location.href = '/table';
+      });      
+    </script>
+  </head>
+  <body>
+    <h1>progress＿{{data_count}}件を処理します</h1>
+    <button onclick="startGenerating()">Start Generating</button>
+    <div id="letters"></div>
+  </body>
+</html>

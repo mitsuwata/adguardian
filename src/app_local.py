@@ -2,6 +2,8 @@ import pandas as pd
 
 import io
 from flask import Flask, render_template, request, make_response, send_file
+from flask_socketio import SocketIO
+
 import csv
 import tempfile
 import process_data
@@ -14,7 +16,7 @@ from transformers import AlbertTokenizer
 from transformers import AlbertForSequenceClassification
 
 # 学習済みモデルをもとに推論する
-def predict(df):
+def predict(df,data_count):
     # Tokenizerの準備
     model_name = 'ALINEAR/albert-japanese-v2'
     albert_tokenizer = AlbertTokenizer.from_pretrained(model_name)
@@ -39,7 +41,7 @@ def predict(df):
     with torch.no_grad():
 
     # 各テキストに対してループで推論を行う
-        for text in x_text:
+        for idx, text in enumerate(x_text):
             inputs = albert_tokenizer(text, return_tensors="pt", max_length=max_length, padding='do_not_pad', truncation=True)
             print('符号化が終わった')
             quantized_output = quantized_model(**inputs)
@@ -65,7 +67,8 @@ def predict(df):
                 "prob_label_1": prob_label_1
             }
             quantized_results.append(result_dict)
-            print('推論が終わった')
+            print(f'推論が終わった: {idx+1}/{data_count}')
+            socketio.emit('update_letters', {'letters': idx})
     
     predicted_labels_list = [item['predicted_labels'].item() for item in quantized_results]
     prob_label_1_list = [item['prob_label_1'].item() for item in quantized_results]
@@ -84,18 +87,25 @@ def predict(df):
 
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 csv_output = None
+selected_df = None
+data_count = None
 
 @app.route('/')
 def home():
     return render_template('home.html')
 
+@socketio.on('connect')
+def handle_connect():
+    socketio.emit('update_letters2', {'letters2': '繋がった！'})
 
 @app.route('/upload', methods=['POST'])
 def upload():
     global csv_output
-
+    global selected_df
+    global data_count  
     file = request.files['file']
     if not file:
         return 'ファイルアップロードされていません.', 400
@@ -104,15 +114,29 @@ def upload():
         df = pd.read_csv(io.StringIO(csv_file))
 
         # 列を選択してDataFrameを作成
-        selected_df = process_data.select_columns_fast(df)
-        print('データができた')
+        selected_df, data_count = process_data.select_columns_fast(df)
+        print(f'データができた。データの件数: {data_count}')
 
-        df_complete = predict(selected_df)
-
-        csv_output = df_complete.to_csv(index=False)  # DataFrameをCSV形式の文字列に変換
-        return render_template('table.html', csv_output=csv_output)
+        return render_template('progress.html',data_count=data_count)
     else:
         return 'CSVファイルではありません.', 400
+
+@socketio.on('start_generating')
+def start_generating():
+    print('start_generating')
+    global csv_output
+    global selected_df
+    global data_count  
+    df_complete = predict(selected_df,data_count)
+    csv_output = df_complete.to_csv(index=False)  # DataFrameをCSV形式の文字列に変換
+    # フロントエンドに処理完了のイベントを送信
+    socketio.emit('generation_complete')
+    return
+
+@app.route('/table')
+def table():
+    return render_template('table.html')
+
 
 @app.route('/download', methods=['POST'])
 def download():
@@ -133,4 +157,4 @@ def download():
     )
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app,debug=True)

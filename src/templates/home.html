@@ -2,9 +2,18 @@
 <html>
   <head>
     <title>ファイルアップロード</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+      var socket = io.connect('http://' + document.domain + ':' + location.port);
+      socket.on('update_letters2', function(data) {
+          var lettersDiv = document.getElementById('letters2');
+          lettersDiv.innerHTML += data.letters2 + '<br>';
+      });
+    </script>
   </head>
   <body>
     <h1>ファイルアップロード</h1>
+    <div id="letters2"></div>
     <form
       method="POST"
       action="{{ url_for('upload') }}"

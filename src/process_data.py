@@ -17,5 +17,9 @@ def select_columns_fast(df):
 
     # 選択した列のみ取得
     selected_df = df2[['違反有無', 'テキスト']]
-    return selected_df
+
+    # データの件数を戻り値として返す
+    data_count = len(selected_df)
+
+    return selected_df, data_count
 
