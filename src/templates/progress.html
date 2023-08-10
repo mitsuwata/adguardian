@@ -4,7 +4,7 @@
     <title>ファイルアップロード</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
-      var socket = io.connect('http://' + document.domain + ':' + location.port);
+      var socket = io.connect('https://' + document.domain + ':' + location.port);
       socket.on('update_letters', function(data) {
           var lettersDiv = document.getElementById('letters');
           lettersDiv.innerHTML += data.letters + '<br>';
