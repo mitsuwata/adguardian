@@ -88,7 +88,7 @@ def predict(df,data_count):
 
 
 app = Flask(__name__)
-socketio = SocketIO(app, ping_interval=10, ping_timeout=5)
+socketio = SocketIO(app)
 
 csv_output = None
 selected_df = None
