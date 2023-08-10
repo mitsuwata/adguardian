@@ -68,7 +68,8 @@ def predict(df,data_count):
             }
             quantized_results.append(result_dict)
             print(f'推論が終わった: {idx+1}/{data_count}')
-            socketio.emit('update_letters', {'letters': idx})
+            if idx % 10 == 0:
+                socketio.emit('update_letters', {'letters': idx})
     
     predicted_labels_list = [item['predicted_labels'].item() for item in quantized_results]
     prob_label_1_list = [item['prob_label_1'].item() for item in quantized_results]
@@ -124,6 +125,7 @@ def upload():
 @socketio.on('start_generating')
 def start_generating():
     print('start_generating')
+    socketio.emit('update_letters', {'letters': '処理中'})
     global csv_output
     global selected_df
     global data_count  
