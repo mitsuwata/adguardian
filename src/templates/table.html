@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>FILE CSV</title>
+    <title>審査結果ダウンロード画面</title>
   </head>
   <body>
-    <h1>CSVデータ</h1>
+    <h1>審査結果ダウンロード画面</h1>
     <form action="/download" method="POST">
       <input type="hidden" name="csv_output" value="{{ csv_output|safe }}">
-      <button type="submit">Download CSV</button>
+      <button type="submit">審査結果をダウンロードする</button>
   </form>
   </body>
 </html>

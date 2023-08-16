@@ -100,7 +100,7 @@ def home():
 
 @socketio.on('connect')
 def handle_connect():
-    socketio.emit('update_letters2', {'letters2': '繋がった！'})
+    socketio.emit('update_letters2', {'letters2': '同期準備完了'})
 
 @app.route('/upload', methods=['POST'])
 def upload():

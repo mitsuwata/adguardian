@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ファイルアップロード</title>
+    <title>処理待ち画面</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
       var socket = io.connect('https://' + document.domain + ':' + location.port);
@@ -20,8 +20,8 @@
     </script>
   </head>
   <body>
-    <h1>progress＿{{data_count}}件を処理します</h1>
-    <button onclick="startGenerating()">Start Generating</button>
+    <h1>今回審査する記事数は{{data_count}}件です</h1>
+    <button onclick="startGenerating()">審査を開始する</button>
     <div id="letters"></div>
   </body>
 </html>
